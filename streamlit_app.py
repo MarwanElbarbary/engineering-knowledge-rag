@@ -74,6 +74,25 @@ with st.sidebar:
         ]
     )
 
+    if page == "💬 Chatbot":
+        st.subheader("⚙️ Retrieval Settings")
+        top_k = st.slider(
+            "Top-K",
+            min_value=1,
+            max_value=10,
+            value=TOP_K,
+            step=1,
+        )
+        retrieval_method_label = st.selectbox(
+            "Retrieval Method",
+            ["Similarity Search", "MMR (Diverse Retrieval)"],
+        )
+        retrieval_method = (
+            "similarity"
+            if retrieval_method_label == "Similarity Search"
+            else "mmr"
+        )
+
     st.divider()
     st.caption("Built with LangChain · ChromaDB · Groq")
 
@@ -82,7 +101,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
-def chat_page():
+def chat_page(top_k, retrieval_method):
 
     st.markdown("""
     <div class="hero">
@@ -135,7 +154,11 @@ def chat_page():
             with st.spinner("Searching the knowledge base..."):
 
                 try:
-                    answer, chunks = ask_question(question)
+                    answer, chunks = ask_question(
+                        question,
+                        top_k=top_k,
+                        retrieval_method=retrieval_method,
+                    )
 
                     st.markdown(answer)
 
@@ -346,7 +369,7 @@ Documents (PDF, Markdown, TXT)
 
 if __name__ == "__main__":
     if page == "💬 Chatbot":
-        chat_page()
+        chat_page(top_k, retrieval_method)
     elif page == "📚 Knowledge Base":
         knowledge_base_page()
     else:
